@@ -1,0 +1,1655 @@
+{
+    "name": "GMT Zoom Recordings to Google Drive (daily)",
+    "flow": [
+        {
+            "id": 11,
+            "module": "zoom:listRecordings",
+            "version": 2,
+            "parameters": {
+                "__IMTCONN__": "<MAKE_ZOOM_CONNECTION_ID>"
+            },
+            "mapper": {
+                "to": "{{now}}",
+                "from": "{{addDays(now; -30)}}",
+                "limit": "100",
+                "trash": false,
+                "userId": "<ZOOM_USER_ID>"
+            },
+            "metadata": {
+                "designer": {
+                    "x": -728,
+                    "y": -14
+                },
+                "restore": {
+                    "expect": {
+                        "trash": {
+                            "mode": "chose"
+                        },
+                        "userId": {
+                            "mode": "chose",
+                            "label": "zoomforgmt@gmail.com"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "zoom2"
+                            },
+                            "label": "<ZOOM_CONNECTION_LABEL>"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:zoom2",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "userId",
+                        "type": "select",
+                        "label": "User ID",
+                        "required": true
+                    },
+                    {
+                        "name": "from",
+                        "type": "date",
+                        "label": "Start Date"
+                    },
+                    {
+                        "name": "to",
+                        "type": "date",
+                        "label": "End Date"
+                    },
+                    {
+                        "name": "trash",
+                        "type": "boolean",
+                        "label": "List Recordings from Trash",
+                        "required": true
+                    },
+                    {
+                        "name": "limit",
+                        "type": "uinteger",
+                        "label": "Limit"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 14,
+            "module": "zoom:getMeeting",
+            "version": 2,
+            "parameters": {
+                "__IMTCONN__": "<MAKE_ZOOM_CONNECTION_ID>"
+            },
+            "mapper": {
+                "userId": "<ZOOM_USER_ID>",
+                "meetingId": "{{11.meeting_number}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": -428,
+                    "y": -14
+                },
+                "restore": {
+                    "expect": {
+                        "userId": {
+                            "mode": "chose",
+                            "label": "zoomforgmt@gmail.com"
+                        },
+                        "meetingId": {
+                            "mode": "edit"
+                        },
+                        "occurrenceId": {
+                            "mode": "edit"
+                        },
+                        "show_previous_occurrences": {
+                            "mode": "chose"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "zoom2"
+                            },
+                            "label": "<ZOOM_CONNECTION_LABEL>"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:zoom2",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "userId",
+                        "type": "select",
+                        "label": "User ID",
+                        "required": true
+                    },
+                    {
+                        "name": "show_previous_occurrences",
+                        "type": "boolean",
+                        "label": "Show Previous Occurrences"
+                    },
+                    {
+                        "mode": "edit",
+                        "name": "meetingId",
+                        "type": "select",
+                        "label": "Meeting ID",
+                        "required": true
+                    },
+                    {
+                        "mode": "edit",
+                        "name": "occurrenceId",
+                        "type": "select",
+                        "label": "Occurrence ID"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 6,
+            "module": "google-sheets:getSheetContent",
+            "version": 2,
+            "parameters": {
+                "__IMTCONN__": "<MAKE_GOOGLE_SHEETS_CONNECTION_ID>"
+            },
+            "mapper": {
+                "from": "drive",
+                "range": "A2:A",
+                "select": "list",
+                "sheetId": "autoList",
+                "spreadsheetId": "/<GOOGLE_DRIVE_FOLDER_ID>/<GOOGLE_SHEET_ID>",
+                "tableFirstRow": "A1:Z1",
+                "includesHeaders": true,
+                "valueRenderOption": "FORMATTED_VALUE",
+                "dateTimeRenderOption": "FORMATTED_STRING"
+            },
+            "metadata": {
+                "designer": {
+                    "x": -151,
+                    "y": -6
+                },
+                "restore": {
+                    "expect": {
+                        "from": {
+                            "label": "My Drive"
+                        },
+                        "select": {
+                            "label": "Search by path"
+                        },
+                        "sheetId": {
+                            "label": "autoList"
+                        },
+                        "spreadsheetId": {
+                            "path": [
+                                "GominingZoomRecordings",
+                                "GoMining Zoom Recordings List [DO NOT EDIT]"
+                            ]
+                        },
+                        "includesHeaders": {
+                            "mode": "chose"
+                        },
+                        "valueRenderOption": {
+                            "mode": "chose",
+                            "label": "Formatted value"
+                        },
+                        "dateTimeRenderOption": {
+                            "mode": "chose",
+                            "label": "Formatted string"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "google"
+                            },
+                            "label": "matveev@gomining (e.matveev@gomining.com)"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:google",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "select",
+                        "type": "select",
+                        "label": "Search Method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "list",
+                                "fromAll",
+                                "map"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "range",
+                        "type": "text",
+                        "label": "Range",
+                        "required": true
+                    },
+                    {
+                        "name": "includesHeaders",
+                        "type": "boolean",
+                        "label": "Table contains headers",
+                        "required": true
+                    },
+                    {
+                        "name": "valueRenderOption",
+                        "type": "select",
+                        "label": "Value render option",
+                        "validate": {
+                            "enum": [
+                                "FORMATTED_VALUE",
+                                "UNFORMATTED_VALUE",
+                                "FORMULA"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "dateTimeRenderOption",
+                        "type": "select",
+                        "label": "Date and time render option",
+                        "validate": {
+                            "enum": [
+                                "SERIAL_NUMBER",
+                                "FORMATTED_STRING"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "type": "select",
+                        "label": "Drive",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "drive",
+                                "share",
+                                "team"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "spreadsheetId",
+                        "type": "file",
+                        "label": "Spreadsheet ID",
+                        "required": true
+                    },
+                    {
+                        "name": "sheetId",
+                        "type": "select",
+                        "label": "Sheet Name",
+                        "required": true
+                    },
+                    {
+                        "name": "tableFirstRow",
+                        "type": "text",
+                        "label": "Row with headers"
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "__IMTLENGTH__",
+                        "type": "uinteger",
+                        "label": "Total number of bundles"
+                    },
+                    {
+                        "name": "__IMTINDEX__",
+                        "type": "uinteger",
+                        "label": "Bundle order position"
+                    },
+                    {
+                        "name": "__ROW_NUMBER__",
+                        "type": "number",
+                        "label": "Row number"
+                    },
+                    {
+                        "name": "__SPREADSHEET_ID__",
+                        "type": "text",
+                        "label": "Spreadsheet ID"
+                    },
+                    {
+                        "name": "__SHEET__",
+                        "type": "text",
+                        "label": "Sheet"
+                    },
+                    {
+                        "name": "0",
+                        "type": "text",
+                        "label": "recordingID (A)"
+                    },
+                    {
+                        "name": "1",
+                        "type": "text",
+                        "label": "meetingID (B)"
+                    },
+                    {
+                        "name": "2",
+                        "type": "text",
+                        "label": "title (C)"
+                    },
+                    {
+                        "name": "3",
+                        "type": "text",
+                        "label": "date (D)"
+                    },
+                    {
+                        "name": "4",
+                        "type": "text",
+                        "label": "linkToWatch (E)"
+                    },
+                    {
+                        "name": "5",
+                        "type": "text",
+                        "label": "linkToDownload (F)"
+                    },
+                    {
+                        "name": "6",
+                        "type": "text",
+                        "label": "timeSynced (G)"
+                    },
+                    {
+                        "name": "7",
+                        "type": "text",
+                        "label": "(H)"
+                    },
+                    {
+                        "name": "8",
+                        "type": "text",
+                        "label": "(I)"
+                    },
+                    {
+                        "name": "9",
+                        "type": "text",
+                        "label": "(J)"
+                    },
+                    {
+                        "name": "10",
+                        "type": "text",
+                        "label": "(K)"
+                    },
+                    {
+                        "name": "11",
+                        "type": "text",
+                        "label": "(L)"
+                    },
+                    {
+                        "name": "12",
+                        "type": "text",
+                        "label": "(M)"
+                    },
+                    {
+                        "name": "13",
+                        "type": "text",
+                        "label": "(N)"
+                    },
+                    {
+                        "name": "14",
+                        "type": "text",
+                        "label": "(O)"
+                    },
+                    {
+                        "name": "15",
+                        "type": "text",
+                        "label": "(P)"
+                    },
+                    {
+                        "name": "16",
+                        "type": "text",
+                        "label": "(Q)"
+                    },
+                    {
+                        "name": "17",
+                        "type": "text",
+                        "label": "(R)"
+                    },
+                    {
+                        "name": "18",
+                        "type": "text",
+                        "label": "(S)"
+                    },
+                    {
+                        "name": "19",
+                        "type": "text",
+                        "label": "(T)"
+                    },
+                    {
+                        "name": "20",
+                        "type": "text",
+                        "label": "(U)"
+                    },
+                    {
+                        "name": "21",
+                        "type": "text",
+                        "label": "(V)"
+                    },
+                    {
+                        "name": "22",
+                        "type": "text",
+                        "label": "(W)"
+                    },
+                    {
+                        "name": "23",
+                        "type": "text",
+                        "label": "(X)"
+                    },
+                    {
+                        "name": "24",
+                        "type": "text",
+                        "label": "(Y)"
+                    },
+                    {
+                        "name": "25",
+                        "type": "text",
+                        "label": "(Z)"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 17,
+            "module": "util:TextAggregator",
+            "version": 1,
+            "parameters": {
+                "feeder": 6,
+                "rowSeparator": ""
+            },
+            "mapper": {
+                "value": "{{6.`0`}},"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 115,
+                    "y": -7
+                },
+                "restore": {
+                    "extra": {
+                        "feeder": {
+                            "label": "Google Sheets - Get Range Values [6]"
+                        }
+                    },
+                    "parameters": {
+                        "rowSeparator": {
+                            "label": "Empty"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "rowSeparator",
+                        "type": "select",
+                        "label": "Row separator",
+                        "validate": {
+                            "enum": [
+                                "\n",
+                                "\t",
+                                "other"
+                            ]
+                        }
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "value",
+                        "type": "text",
+                        "label": "Text"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 7,
+            "module": "builtin:BasicRouter",
+            "version": 1,
+            "mapper": null,
+            "metadata": {
+                "designer": {
+                    "x": 365,
+                    "y": -7
+                }
+            },
+            "routes": [
+                {
+                    "flow": [
+                        {
+                            "id": 15,
+                            "module": "zoom:downloadCloudRecording",
+                            "version": 2,
+                            "parameters": {
+                                "__IMTCONN__": "<MAKE_ZOOM_CONNECTION_ID>"
+                            },
+                            "filter": {
+                                "name": "doesn't exist",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{17.text}}",
+                                            "b": "{{11.id}}",
+                                            "o": "text:notcontain"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "url": "{{11.download_url}}",
+                                "fileName": " {{formatDate(11.recording_end; \"MM/DD/YYYY HH:mm\")}} {{14.topic}} {{11.id}}.{{11.file_extension}}"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 595,
+                                    "y": -347
+                                },
+                                "restore": {
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "zoom2"
+                                            },
+                                            "label": "<ZOOM_CONNECTION_LABEL>"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:zoom2",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "url",
+                                        "type": "url",
+                                        "label": "Download URL",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "token",
+                                        "type": "text",
+                                        "label": "Download Token"
+                                    },
+                                    {
+                                        "name": "fileName",
+                                        "type": "text",
+                                        "label": "File Name"
+                                    }
+                                ]
+                            },
+                            "onerror": [
+                                {
+                                    "id": 30,
+                                    "module": "builtin:Ignore",
+                                    "version": 1,
+                                    "metadata": {
+                                        "designer": {
+                                            "x": 510,
+                                            "y": -577
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "id": 4,
+                            "module": "google-drive:uploadAFile",
+                            "version": 4,
+                            "parameters": {
+                                "__IMTCONN__": "<MAKE_GOOGLE_DRIVE_CONNECTION_ID>"
+                            },
+                            "mapper": {
+                                "data": "{{15.recording}}",
+                                "select": "value",
+                                "convert": false,
+                                "filename": "{{15.fileName}}",
+                                "folderId": "/<GOOGLE_DRIVE_FOLDER_ID>",
+                                "destination": "drive"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 922,
+                                    "y": -344
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "select": {
+                                            "label": "Select from the list"
+                                        },
+                                        "folderId": {
+                                            "mode": "chose",
+                                            "path": [
+                                                "GominingZoomRecordings"
+                                            ]
+                                        },
+                                        "destination": {
+                                            "label": "My Drive"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "google-restricted"
+                                            },
+                                            "label": "matveev@gomining (e.matveev@gomining.com)"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:google-restricted",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "type": "hidden"
+                                    },
+                                    {
+                                        "name": "select",
+                                        "type": "select",
+                                        "label": "Enter a Folder ID",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "map",
+                                                "value"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "title",
+                                        "type": "text",
+                                        "label": "New File Name"
+                                    },
+                                    {
+                                        "name": "filename",
+                                        "type": "text",
+                                        "label": "File Name",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "data",
+                                        "type": "buffer",
+                                        "label": "Data",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "convert",
+                                        "type": "boolean",
+                                        "label": "Convert a File",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "destination",
+                                        "type": "select",
+                                        "label": "New Drive Location",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "drive",
+                                                "share",
+                                                "team"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "folderId",
+                                        "type": "folder",
+                                        "label": "New Folder Location",
+                                        "required": true
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "id": 5,
+                            "module": "google-sheets:addRow",
+                            "version": 2,
+                            "parameters": {
+                                "__IMTCONN__": "<MAKE_GOOGLE_SHEETS_CONNECTION_ID>"
+                            },
+                            "mapper": {
+                                "mode": "map",
+                                "values": {
+                                    "0": "{{11.id}}",
+                                    "1": "{{11.meeting_number}}",
+                                    "2": "{{14.topic}}",
+                                    "3": "{{formatDate(11.recording_end; \"MM.DD.YYYY hh:mm\")}}",
+                                    "4": "{{11.file_extension}}",
+                                    "5": "{{4.webViewLink}}",
+                                    "6": "{{4.webContentLink}}",
+                                    "7": "{{formatDate(now; \"MM.DD.YYYY hh:mm\")}}"
+                                },
+                                "sheetId": "autoList",
+                                "spreadsheetId": "<GOOGLE_SHEET_ID>",
+                                "tableFirstRow": "A1:Z1",
+                                "insertDataOption": "INSERT_ROWS",
+                                "valueInputOption": "USER_ENTERED",
+                                "insertUnformatted": false
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1290,
+                                    "y": -343
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "mode": {
+                                            "label": "Enter manually"
+                                        },
+                                        "tableFirstRow": {
+                                            "label": "A-Z",
+                                            "nested": [
+                                                {
+                                                    "name": "values",
+                                                    "spec": [
+                                                        {
+                                                            "name": "0",
+                                                            "type": "text",
+                                                            "label": "A"
+                                                        },
+                                                        {
+                                                            "name": "1",
+                                                            "type": "text",
+                                                            "label": "B"
+                                                        },
+                                                        {
+                                                            "name": "2",
+                                                            "type": "text",
+                                                            "label": "C"
+                                                        },
+                                                        {
+                                                            "name": "3",
+                                                            "type": "text",
+                                                            "label": "D"
+                                                        },
+                                                        {
+                                                            "name": "4",
+                                                            "type": "text",
+                                                            "label": "E"
+                                                        },
+                                                        {
+                                                            "name": "5",
+                                                            "type": "text",
+                                                            "label": "F"
+                                                        },
+                                                        {
+                                                            "name": "6",
+                                                            "type": "text",
+                                                            "label": "G"
+                                                        },
+                                                        {
+                                                            "name": "7",
+                                                            "type": "text",
+                                                            "label": "H"
+                                                        },
+                                                        {
+                                                            "name": "8",
+                                                            "type": "text",
+                                                            "label": "I"
+                                                        },
+                                                        {
+                                                            "name": "9",
+                                                            "type": "text",
+                                                            "label": "J"
+                                                        },
+                                                        {
+                                                            "name": "10",
+                                                            "type": "text",
+                                                            "label": "K"
+                                                        },
+                                                        {
+                                                            "name": "11",
+                                                            "type": "text",
+                                                            "label": "L"
+                                                        },
+                                                        {
+                                                            "name": "12",
+                                                            "type": "text",
+                                                            "label": "M"
+                                                        },
+                                                        {
+                                                            "name": "13",
+                                                            "type": "text",
+                                                            "label": "N"
+                                                        },
+                                                        {
+                                                            "name": "14",
+                                                            "type": "text",
+                                                            "label": "O"
+                                                        },
+                                                        {
+                                                            "name": "15",
+                                                            "type": "text",
+                                                            "label": "P"
+                                                        },
+                                                        {
+                                                            "name": "16",
+                                                            "type": "text",
+                                                            "label": "Q"
+                                                        },
+                                                        {
+                                                            "name": "17",
+                                                            "type": "text",
+                                                            "label": "R"
+                                                        },
+                                                        {
+                                                            "name": "18",
+                                                            "type": "text",
+                                                            "label": "S"
+                                                        },
+                                                        {
+                                                            "name": "19",
+                                                            "type": "text",
+                                                            "label": "T"
+                                                        },
+                                                        {
+                                                            "name": "20",
+                                                            "type": "text",
+                                                            "label": "U"
+                                                        },
+                                                        {
+                                                            "name": "21",
+                                                            "type": "text",
+                                                            "label": "V"
+                                                        },
+                                                        {
+                                                            "name": "22",
+                                                            "type": "text",
+                                                            "label": "W"
+                                                        },
+                                                        {
+                                                            "name": "23",
+                                                            "type": "text",
+                                                            "label": "X"
+                                                        },
+                                                        {
+                                                            "name": "24",
+                                                            "type": "text",
+                                                            "label": "Y"
+                                                        },
+                                                        {
+                                                            "name": "25",
+                                                            "type": "text",
+                                                            "label": "Z"
+                                                        }
+                                                    ],
+                                                    "type": "collection",
+                                                    "label": "Values"
+                                                }
+                                            ]
+                                        },
+                                        "insertDataOption": {
+                                            "mode": "chose",
+                                            "label": "Insert rows"
+                                        },
+                                        "valueInputOption": {
+                                            "mode": "chose",
+                                            "label": "User entered"
+                                        },
+                                        "insertUnformatted": {
+                                            "mode": "chose"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "google"
+                                            },
+                                            "label": "matveev@gomining (e.matveev@gomining.com)"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:google",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "mode",
+                                        "type": "select",
+                                        "label": "Search Method",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "select",
+                                                "fromAll",
+                                                "map"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "insertUnformatted",
+                                        "type": "boolean",
+                                        "label": "Unformatted",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "valueInputOption",
+                                        "type": "select",
+                                        "label": "Value input option",
+                                        "validate": {
+                                            "enum": [
+                                                "USER_ENTERED",
+                                                "RAW"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "insertDataOption",
+                                        "type": "select",
+                                        "label": "Insert data option",
+                                        "validate": {
+                                            "enum": [
+                                                "INSERT_ROWS",
+                                                "OVERWRITE"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "spreadsheetId",
+                                        "type": "text",
+                                        "label": "Spreadsheet ID",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "sheetId",
+                                        "type": "text",
+                                        "label": "Sheet Name",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "tableFirstRow",
+                                        "type": "select",
+                                        "label": "Column range",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "A1:Z1",
+                                                "A1:BZ1",
+                                                "A1:CZ1",
+                                                "A1:DZ1",
+                                                "A1:MZ1",
+                                                "A1:ZZ1"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "values",
+                                        "spec": [
+                                            {
+                                                "name": "0",
+                                                "type": "text",
+                                                "label": "A"
+                                            },
+                                            {
+                                                "name": "1",
+                                                "type": "text",
+                                                "label": "B"
+                                            },
+                                            {
+                                                "name": "2",
+                                                "type": "text",
+                                                "label": "C"
+                                            },
+                                            {
+                                                "name": "3",
+                                                "type": "text",
+                                                "label": "D"
+                                            },
+                                            {
+                                                "name": "4",
+                                                "type": "text",
+                                                "label": "E"
+                                            },
+                                            {
+                                                "name": "5",
+                                                "type": "text",
+                                                "label": "F"
+                                            },
+                                            {
+                                                "name": "6",
+                                                "type": "text",
+                                                "label": "G"
+                                            },
+                                            {
+                                                "name": "7",
+                                                "type": "text",
+                                                "label": "H"
+                                            },
+                                            {
+                                                "name": "8",
+                                                "type": "text",
+                                                "label": "I"
+                                            },
+                                            {
+                                                "name": "9",
+                                                "type": "text",
+                                                "label": "J"
+                                            },
+                                            {
+                                                "name": "10",
+                                                "type": "text",
+                                                "label": "K"
+                                            },
+                                            {
+                                                "name": "11",
+                                                "type": "text",
+                                                "label": "L"
+                                            },
+                                            {
+                                                "name": "12",
+                                                "type": "text",
+                                                "label": "M"
+                                            },
+                                            {
+                                                "name": "13",
+                                                "type": "text",
+                                                "label": "N"
+                                            },
+                                            {
+                                                "name": "14",
+                                                "type": "text",
+                                                "label": "O"
+                                            },
+                                            {
+                                                "name": "15",
+                                                "type": "text",
+                                                "label": "P"
+                                            },
+                                            {
+                                                "name": "16",
+                                                "type": "text",
+                                                "label": "Q"
+                                            },
+                                            {
+                                                "name": "17",
+                                                "type": "text",
+                                                "label": "R"
+                                            },
+                                            {
+                                                "name": "18",
+                                                "type": "text",
+                                                "label": "S"
+                                            },
+                                            {
+                                                "name": "19",
+                                                "type": "text",
+                                                "label": "T"
+                                            },
+                                            {
+                                                "name": "20",
+                                                "type": "text",
+                                                "label": "U"
+                                            },
+                                            {
+                                                "name": "21",
+                                                "type": "text",
+                                                "label": "V"
+                                            },
+                                            {
+                                                "name": "22",
+                                                "type": "text",
+                                                "label": "W"
+                                            },
+                                            {
+                                                "name": "23",
+                                                "type": "text",
+                                                "label": "X"
+                                            },
+                                            {
+                                                "name": "24",
+                                                "type": "text",
+                                                "label": "Y"
+                                            },
+                                            {
+                                                "name": "25",
+                                                "type": "text",
+                                                "label": "Z"
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Values"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "id": 18,
+                            "module": "slack:CreateMessage",
+                            "version": 4,
+                            "parameters": {
+                                "__IMTCONN__": "<MAKE_SLACK_CONNECTION_ID>"
+                            },
+                            "filter": {
+                                "name": "One-time",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{11.`__IMTINDEX__`}}",
+                                            "b": "{{11.`__IMTLENGTH__`}}",
+                                            "o": "text:equal"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "text": "I've just moved a new Zoom Recording to Google Drive.\n\nPlease review this spreadsheet for the up to date list of recordings: https://docs.google.com/spreadsheets/d/<GOOGLE_SHEET_ID> (requires gomining.com account).",
+                                "parse": false,
+                                "mrkdwn": true,
+                                "channel": "<SLACK_DM_CHANNEL_ID_NEW_RECORDING>",
+                                "channelType": "im",
+                                "channelWType": "list"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1667,
+                                    "y": -347
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "parse": {
+                                            "mode": "chose"
+                                        },
+                                        "mrkdwn": {
+                                            "mode": "chose"
+                                        },
+                                        "channel": {
+                                            "mode": "chose",
+                                            "label": "alena.drobinina"
+                                        },
+                                        "link_names": {
+                                            "mode": "chose"
+                                        },
+                                        "channelType": {
+                                            "label": "Direct message"
+                                        },
+                                        "channelWType": {
+                                            "label": "Select from the list"
+                                        },
+                                        "unfurl_links": {
+                                            "mode": "chose"
+                                        },
+                                        "unfurl_media": {
+                                            "mode": "chose"
+                                        },
+                                        "reply_broadcast": {
+                                            "mode": "chose"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "slack2"
+                                            },
+                                            "label": "matveev@gomining (e.matveev)"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:slack2,slack3",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "channelWType",
+                                        "type": "select",
+                                        "label": "Enter a channel ID or name",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "manualy",
+                                                "list"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "text",
+                                        "type": "text",
+                                        "label": "Text"
+                                    },
+                                    {
+                                        "name": "blocks",
+                                        "type": "text",
+                                        "label": "Blocks"
+                                    },
+                                    {
+                                        "name": "thread_ts",
+                                        "type": "text",
+                                        "label": "Thread message ID (time stamp)"
+                                    },
+                                    {
+                                        "name": "reply_broadcast",
+                                        "type": "boolean",
+                                        "label": "Reply broadcast"
+                                    },
+                                    {
+                                        "name": "link_names",
+                                        "type": "boolean",
+                                        "label": "Link names"
+                                    },
+                                    {
+                                        "name": "parse",
+                                        "type": "boolean",
+                                        "label": "Parse message text"
+                                    },
+                                    {
+                                        "name": "mrkdwn",
+                                        "type": "boolean",
+                                        "label": "Use markdown"
+                                    },
+                                    {
+                                        "name": "unfurl_links",
+                                        "type": "boolean",
+                                        "label": "Unfurl primarily text-based content"
+                                    },
+                                    {
+                                        "name": "unfurl_media",
+                                        "type": "boolean",
+                                        "label": "Unfurl media content"
+                                    },
+                                    {
+                                        "name": "icon_emoji",
+                                        "type": "text",
+                                        "label": "Icon emoji"
+                                    },
+                                    {
+                                        "name": "icon_url",
+                                        "type": "url",
+                                        "label": "Icon url"
+                                    },
+                                    {
+                                        "name": "username",
+                                        "type": "text",
+                                        "label": "User name"
+                                    },
+                                    {
+                                        "name": "channelType",
+                                        "type": "select",
+                                        "label": "Channel type",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "public",
+                                                "private",
+                                                "im",
+                                                "mpim"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "channel",
+                                        "type": "select",
+                                        "label": "User",
+                                        "required": true
+                                    }
+                                ]
+                            },
+                            "onerror": [
+                                {
+                                    "id": 39,
+                                    "module": "builtin:Ignore",
+                                    "version": 1,
+                                    "metadata": {
+                                        "designer": {
+                                            "x": 1967,
+                                            "y": -347
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "flow": [
+                        {
+                            "id": 28,
+                            "module": "zoom:deleteRecording",
+                            "version": 2,
+                            "parameters": {
+                                "__IMTCONN__": "<MAKE_ZOOM_CONNECTION_ID>"
+                            },
+                            "filter": {
+                                "name": "exists",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{17.text}}",
+                                            "b": "{{11.id}}",
+                                            "o": "text:contain"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "userId": "<ZOOM_USER_ID>",
+                                "meetingId": "{{11.meeting_number}}",
+                                "recordingId": "{{11.id}}"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 589,
+                                    "y": 294
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "userId": {
+                                            "mode": "chose",
+                                            "label": "zoomforgmt@gmail.com"
+                                        },
+                                        "meetingId": {
+                                            "mode": "edit"
+                                        },
+                                        "recordingId": {
+                                            "mode": "edit"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "zoom2"
+                                            },
+                                            "label": "<ZOOM_CONNECTION_LABEL>"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:zoom2",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "userId",
+                                        "type": "select",
+                                        "label": "User ID",
+                                        "required": true
+                                    },
+                                    {
+                                        "mode": "edit",
+                                        "name": "meetingId",
+                                        "type": "select",
+                                        "label": "Meeting ID",
+                                        "required": true
+                                    },
+                                    {
+                                        "mode": "edit",
+                                        "name": "recordingId",
+                                        "type": "select",
+                                        "label": "Recording ID",
+                                        "required": true
+                                    }
+                                ]
+                            },
+                            "onerror": [
+                                {
+                                    "id": 36,
+                                    "module": "builtin:Resume",
+                                    "version": 1,
+                                    "parameters": {},
+                                    "mapper": {},
+                                    "metadata": {
+                                        "designer": {
+                                            "x": 804,
+                                            "y": 508
+                                        },
+                                        "restore": {}
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "id": 23,
+                            "module": "slack:CreateMessage",
+                            "version": 4,
+                            "parameters": {
+                                "__IMTCONN__": "<MAKE_SLACK_CONNECTION_ID>"
+                            },
+                            "filter": {
+                                "name": "One-time",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{11.`__IMTINDEX__`}}",
+                                            "b": "{{11.`__IMTLENGTH__`}}",
+                                            "o": "text:equal"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "text": "I've finished copying new recordings from Zoom Cloud to Google Drive.\n\nSome of the files were already found on Google Drive. I've removed those duplicates from Zoom Cloud without copying them over. \n\nPlease review this spreadsheet for the up to date list of recordings: https://docs.google.com/spreadsheets/d/<GOOGLE_SHEET_ID> (requires gomining.com account).\n​",
+                                "parse": false,
+                                "mrkdwn": true,
+                                "channel": "<SLACK_DM_CHANNEL_ID_SUMMARY>",
+                                "channelType": "im",
+                                "channelWType": "list"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1031,
+                                    "y": 293
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "parse": {
+                                            "mode": "chose"
+                                        },
+                                        "mrkdwn": {
+                                            "mode": "chose"
+                                        },
+                                        "channel": {
+                                            "mode": "chose",
+                                            "label": "e.matveev"
+                                        },
+                                        "link_names": {
+                                            "mode": "chose"
+                                        },
+                                        "channelType": {
+                                            "label": "Direct message"
+                                        },
+                                        "channelWType": {
+                                            "label": "Select from the list"
+                                        },
+                                        "unfurl_links": {
+                                            "mode": "chose"
+                                        },
+                                        "unfurl_media": {
+                                            "mode": "chose"
+                                        },
+                                        "reply_broadcast": {
+                                            "mode": "chose"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "slack2"
+                                            },
+                                            "label": "matveev@gomining (e.matveev)"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:slack2,slack3",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "channelWType",
+                                        "type": "select",
+                                        "label": "Enter a channel ID or name",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "manualy",
+                                                "list"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "text",
+                                        "type": "text",
+                                        "label": "Text"
+                                    },
+                                    {
+                                        "name": "blocks",
+                                        "type": "text",
+                                        "label": "Blocks"
+                                    },
+                                    {
+                                        "name": "thread_ts",
+                                        "type": "text",
+                                        "label": "Thread message ID (time stamp)"
+                                    },
+                                    {
+                                        "name": "reply_broadcast",
+                                        "type": "boolean",
+                                        "label": "Reply broadcast"
+                                    },
+                                    {
+                                        "name": "link_names",
+                                        "type": "boolean",
+                                        "label": "Link names"
+                                    },
+                                    {
+                                        "name": "parse",
+                                        "type": "boolean",
+                                        "label": "Parse message text"
+                                    },
+                                    {
+                                        "name": "mrkdwn",
+                                        "type": "boolean",
+                                        "label": "Use markdown"
+                                    },
+                                    {
+                                        "name": "unfurl_links",
+                                        "type": "boolean",
+                                        "label": "Unfurl primarily text-based content"
+                                    },
+                                    {
+                                        "name": "unfurl_media",
+                                        "type": "boolean",
+                                        "label": "Unfurl media content"
+                                    },
+                                    {
+                                        "name": "icon_emoji",
+                                        "type": "text",
+                                        "label": "Icon emoji"
+                                    },
+                                    {
+                                        "name": "icon_url",
+                                        "type": "url",
+                                        "label": "Icon url"
+                                    },
+                                    {
+                                        "name": "username",
+                                        "type": "text",
+                                        "label": "User name"
+                                    },
+                                    {
+                                        "name": "channelType",
+                                        "type": "select",
+                                        "label": "Channel type",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "public",
+                                                "private",
+                                                "im",
+                                                "mpim"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "channel",
+                                        "type": "select",
+                                        "label": "User",
+                                        "required": true
+                                    }
+                                ]
+                            },
+                            "onerror": [
+                                {
+                                    "id": 38,
+                                    "module": "builtin:Ignore",
+                                    "version": 1,
+                                    "metadata": {
+                                        "designer": {
+                                            "x": 1331,
+                                            "y": 293
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "metadata": {
+        "instant": false,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "eu2.make.com"
+    }
+}

@@ -1,0 +1,365 @@
+{
+  "name": "Incoming Form Webhook to Odoo Contacts",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body['fields[optin][value]'] }}",
+              "value2": "yes"
+            }
+          ]
+        }
+      },
+      "id": "fc685183-98c6-43a0-a8dc-4d92b2a27677",
+      "name": "IF Opted-In",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "mail.message",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "record_name",
+              "fieldValue": "middle-earth"
+            },
+            {
+              "fieldName": "model",
+              "fieldValue": "mail.channel"
+            },
+            {
+              "fieldName": "message_type",
+              "fieldValue": "comment"
+            },
+            {
+              "fieldName": "subtype_id",
+              "fieldValue": "1"
+            },
+            {
+              "fieldName": "body",
+              "fieldValue": "=A new form has been received from  {{ $json.body['fields[name][value]'] }}. Message:  {{ $json.body['fields[message][value]'] }}. Review and assign the lead at https://team.yoursite.com/web#id={{ $json.id }}&menu_id=136&action=197&model=crm.lead&view_type=form "
+            },
+            {
+              "fieldName": "author_id",
+              "fieldValue": "14"
+            },
+            {
+              "fieldName": "email_from",
+              "fieldValue": "\"Galadriel\" <api@yoursite.com>"
+            },
+            {
+              "fieldName": "reply_to",
+              "fieldValue": "\"Middle-earth\" <noreply@yoursite.com>"
+            },
+            {
+              "fieldName": "res_id",
+              "fieldValue": "1"
+            }
+          ]
+        }
+      },
+      "id": "54ae7007-882c-4cd4-bb1d-b735514dfd86",
+      "name": "Send a message to #middle-earth",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1580,
+        160
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "<ODOO_CREDENTIAL_ID>",
+          "name": "<ODOO_CREDENTIAL_NAME>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "274423b6-47a0-4b25-8ad8-4f4513cb7e05",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        900,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "crm.lead",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "partner_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldName": "name",
+              "fieldValue": "={{ $json.body['fields[company][value]'] }}"
+            },
+            {
+              "fieldName": "description",
+              "fieldValue": "={{ $json.body['fields[message][value]'] }}"
+            }
+          ]
+        }
+      },
+      "id": "a7354dd5-ea30-4140-93ba-ce0164fcbfd5",
+      "name": "Create Lead",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        160
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "<ODOO_CREDENTIAL_ID>",
+          "name": "<ODOO_CREDENTIAL_NAME>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "res.partner",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "name",
+              "fieldValue": "={{ $json.body['fields[name][value]'] }}"
+            },
+            {
+              "fieldName": "email",
+              "fieldValue": "={{ $json.body['fields[email][value]'] }}"
+            },
+            {
+              "fieldName": "company_name",
+              "fieldValue": "={{ $json.body['fields[company][value]'] }}"
+            },
+            {
+              "fieldName": "comment",
+              "fieldValue": "={{ $json.body['fields[message][value]'] }}"
+            }
+          ]
+        }
+      },
+      "id": "ba7e0746-4610-4785-8b70-84a33439935d",
+      "name": "Contact",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        660,
+        160
+      ],
+      "credentials": {
+        "odooApi": {
+          "id": "<ODOO_CREDENTIAL_ID>",
+          "name": "<ODOO_CREDENTIAL_NAME>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "custom",
+        "customResource": "mailing.contact",
+        "fieldsToCreateOrUpdate": {
+          "fields": [
+            {
+              "fieldName": "partner_id",
+              "fieldValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "id": "e3261cba-1262-40a7-8a5a-6b0df9787257",
+      "name": "Mailing Contact",
+      "type": "n8n-nodes-base.odoo",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        440
+      ],
+      "executeOnce": false,
+      "credentials": {
+        "odooApi": {
+          "id": "<ODOO_CREDENTIAL_ID>",
+          "name": "<ODOO_CREDENTIAL_NAME>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "85bd6d5f-6712-41cb-95b4-c26181f714c5",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        1360,
+        160
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "e72bb562-7c0c-4513-9932-c46dfb08d811",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-form-collect",
+        "options": {}
+      },
+      "id": "b9d2b362-d94c-4682-8ebe-a8bf2966bbe0",
+      "name": "FormReceived",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        400,
+        160
+      ],
+      "webhookId": "<N8N_WEBHOOK_ID>"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "IF Opted-In": {
+      "main": [
+        [
+          {
+            "node": "Mailing Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Create Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF Opted-In",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contact": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Lead": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Send a message to #middle-earth",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FormReceived": {
+      "main": [
+        [
+          {
+            "node": "Contact",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "76c82e35-710e-4483-a663-c924a1251d94",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "<N8N_INSTANCE_ID>"
+  },
+  "id": "oooiWzE5Mv835H2o",
+  "tags": [
+    {
+      "createdAt": "2023-08-18T07:53:12.385Z",
+      "updatedAt": "2023-08-18T07:53:12.385Z",
+      "id": "0VfjSdq9DvWRvjNb",
+      "name": "Main"
+    },
+    {
+      "createdAt": "2023-08-18T07:53:30.705Z",
+      "updatedAt": "2023-08-18T07:53:30.705Z",
+      "id": "9s0w9CzJJpbPSYeA",
+      "name": "Website"
+    }
+  ]
+}
