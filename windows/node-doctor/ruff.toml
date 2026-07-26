@@ -1,0 +1,12 @@
+# Pinned so `ruff check` is reproducible here regardless of any config further up the tree.
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "W", "I", "UP", "B", "BLE", "SIM", "RUF"]
+ignore = [
+    # Explicit try/except/pass is deliberate in the fix rollback paths: the suppression IS the
+    # behaviour being documented, and contextlib.suppress nested inside an except handler reads
+    # worse than the two lines it replaces.
+    "SIM105",
+]

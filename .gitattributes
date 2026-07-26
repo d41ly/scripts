@@ -1,0 +1,20 @@
+# Let git detect text vs binary; the pins below override where the ending actually matters.
+* text=auto
+
+# Executed by a POSIX shell or inside a Linux container. A stray CR breaks the shebang
+# ("bad interpreter: /bin/bash^M"), nginx configs, and docker --env-file parsing.
+*.sh         text eol=lf
+Dockerfile*  text eol=lf
+*.conf       text eol=lf
+*.env        text eol=lf
+*.env.*      text eol=lf
+*.yml        text eol=lf
+*.yaml       text eol=lf
+
+# windows/node-doctor asserts its own source is CR-free (--self-test), so a CRLF checkout on a
+# node with core.autocrlf=true would fail it. Same for the hook scripts, which run under MSYS.
+*.py         text eol=lf
+
+# Windows-native launchers: cmd.exe is the one interpreter that genuinely wants CRLF.
+*.bat        text eol=crlf
+*.cmd        text eol=crlf

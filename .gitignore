@@ -1,0 +1,10 @@
+# Python build/test artifacts (windows/node-doctor generates all three when its suite runs)
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# node-doctor per-machine artifacts. State normally lives outside the repo
+# (%LOCALAPPDATA%\node-doctor), but never commit one if it lands here.
+.node-doctor-state.json
+node-doctor.local.json
